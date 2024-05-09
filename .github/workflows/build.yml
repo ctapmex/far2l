@@ -50,7 +50,7 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
   
-  macos13-clang:
+  macos13-x64-clang:
     runs-on: macos-13
 
     steps:
@@ -69,8 +69,7 @@ jobs:
          libarchive pcre
 
       - name: Relink 'keg-only' packages
-        run: export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/libarchive/lib/pkgconfig"
-          #brew link libarchive --force
+        run: brew link libarchive --force
 
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
@@ -108,8 +107,7 @@ jobs:
           libarchive pcre
 
       - name: Relink 'keg-only' packages
-        run: export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/libarchive/lib/pkgconfig"
-        #brew link libarchive --force
+        run: brew link libarchive --force
   
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
