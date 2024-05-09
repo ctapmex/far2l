@@ -1,0 +1,45 @@
+name: check build
+
+on:
+  # allow manually running worflow, useful for testing branches
+  workflow_dispatch:
+  # run on push in master
+  push:
+    branches:
+        - master
+  # run on pull request to master
+  pull_request:
+    branches:
+      - master
+  
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  ubuntu-gcc:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+  
+      - name: Install dependencies
+        run: sudo apt-get update ; sudo apt-get -y install $(cat dependencies${{ matrix.dependencies }}.txt)
+  
+      - name: Create Build Environment
+        # Create a separate build directory as working directory for all subsequent commands
+        run: mkdir -p _build
+  
+      - name: Configure CMake
+        # Use a bash shell so we can use the same syntax for environment variable
+        # access regardless of the host operating system
+        shell: bash
+        # -S and -B options specify source and build directories
+        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  
+      - name: Build
+        shell: bash
+        # Execute the build.  You can specify a specific target with "--target <NAME>"
+        run: |
+          cmake --build _build --config $BUILD_TYPE
