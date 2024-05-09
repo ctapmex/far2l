@@ -27,7 +27,8 @@ jobs:
       - name: Install dependencies
         run: >
          sudo apt-get update;
-         sudo apt-get -y install libuchardet-dev libxerces-c-dev libwxgtk3.0-gtk3-dev
+         sudo apt-get -y install
+         libuchardet-dev libxerces-c-dev libwxgtk3.0-gtk3-dev
          libx11-dev libxi-dev
          libssl-dev libsmbclient-dev libnfs-dev libneon27-dev libssh-dev
          libarchive-dev libpcre3-dev
@@ -49,8 +50,8 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
   
-  macos-gcc:
-    runs-on: macos-14-large
+  macos13-gcc:
+    runs-on: macos-13
 
     steps:
       - name: Checkout source
@@ -60,9 +61,13 @@ jobs:
         run: >
          brew install xerces-c
          uchardet xerces-c wxwidgets
-         openssl libnfs neon libssh
+         libx11 libxi
+         openssl samba libnfs neon libssh
          libarchive pcre
-  
+
+      - name: Relink 'keg-only' packages
+        run: brew link libarchive --force
+
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
         run: mkdir -p _build
@@ -80,7 +85,7 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
 
-  macos-arm-gcc:
+  macos14-arm-gcc:
     runs-on: macos-14
 
     steps:
@@ -91,8 +96,12 @@ jobs:
         run: >
           brew install xerces-c
           uchardet xerces-c wxwidgets
-          openssl libnfs neon libssh
+          libx11 libxi
+          openssl samba libnfs neon libssh
           libarchive pcre
+
+      - name: Relink 'keg-only' packages
+        run: brew link libarchive --force
   
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
