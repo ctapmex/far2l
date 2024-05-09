@@ -50,10 +50,13 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
   
-  macos13-gcc:
+  macos13-clang:
     runs-on: macos-13
 
     steps:
+      - name: Check OS
+        run: uname -m
+
       - name: Checkout source
         uses: actions/checkout@v4
   
@@ -66,7 +69,8 @@ jobs:
          libarchive pcre
 
       - name: Relink 'keg-only' packages
-        run: brew link libarchive --force
+        run: export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/libarchive/lib/pkgconfig"
+          #brew link libarchive --force
 
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
@@ -83,12 +87,15 @@ jobs:
         shell: bash
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
-          cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
+          cmake --build _build --config $BUILD_TYPE -j$(sysctl -n hw.logicalcpu)
 
-  macos14-arm-gcc:
+  macos14-arm-clang:
     runs-on: macos-14
 
     steps:
+      - name: Check OS
+        run: uname -m
+
       - name: Checkout source
         uses: actions/checkout@v4
   
@@ -101,7 +108,8 @@ jobs:
           libarchive pcre
 
       - name: Relink 'keg-only' packages
-        run: brew link libarchive --force
+        run: export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$(brew --prefix)/opt/libarchive/lib/pkgconfig"
+        #brew link libarchive --force
   
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
@@ -118,4 +126,4 @@ jobs:
         shell: bash
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
-          cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
+          cmake --build _build --config $BUILD_TYPE -j$(sysctl -n hw.logicalcpu)
