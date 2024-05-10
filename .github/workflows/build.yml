@@ -50,8 +50,8 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
   
-  ubuntu-gcc14:
-    runs-on: ubuntu-24.04
+  ubuntu-gcc13:
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout source
@@ -75,7 +75,7 @@ jobs:
         # access regardless of the host operating system
         shell: bash
         # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
+        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes -DCC=/usr/bin/cc-13 -DCXX=/usr/bin/c++-13
   
       - name: Build
         shell: bash
