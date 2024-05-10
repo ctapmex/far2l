@@ -52,17 +52,15 @@ jobs:
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
         run: mkdir -p _build
-  
-      - name: Set compliler
-        # Create a separate build directory as working directory for all subsequent commands
-        run: export CC=${{ matrix.c }}; export CXX=${{ matrix.cxx }}
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
         # access regardless of the host operating system
         shell: bash
         # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
+        run: > 
+         cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
+         -DCMAKE_C_COMPILER=${{ matrix.c }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
   
       - name: Build
         shell: bash
@@ -106,16 +104,14 @@ jobs:
         # Create a separate build directory as working directory for all subsequent commands
         run: mkdir -p _build
   
-      - name: Set compliler
-        # Create a separate build directory as working directory for all subsequent commands
-        run: export CC=${{ matrix.c }}; export CXX=${{ matrix.cxx }}
-
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
         # access regardless of the host operating system
         shell: bash
         # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
+        run: > 
+         cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
+         -DCMAKE_C_COMPILER=${{ matrix.c }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
   
       - name: Build
         shell: bash
