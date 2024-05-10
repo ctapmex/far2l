@@ -17,8 +17,8 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  ubuntu-gcc:
-    runs-on: ubuntu-22.04
+  ubuntu-gcc9:
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout source
@@ -42,7 +42,7 @@ jobs:
         # access regardless of the host operating system
         shell: bash
         # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
   
       - name: Build
         shell: bash
@@ -50,60 +50,21 @@ jobs:
         run: |
           cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
   
-  macos13-x64-clang:
-    runs-on: macos-13
+  ubuntu-gcc14:
+    runs-on: ubuntu-22.04
 
     steps:
-
       - name: Checkout source
         uses: actions/checkout@v4
   
       - name: Install dependencies
         run: >
-         brew install xerces-c
-         uchardet xerces-c wxwidgets
-         libx11 libxi
-         openssl samba libnfs neon libssh
-         libarchive pcre
-
-      - name: Relink 'keg-only' packages
-        run: brew link libarchive --force
-
-      - name: Create Build Environment
-        # Create a separate build directory as working directory for all subsequent commands
-        run: mkdir -p _build
-  
-      - name: Configure CMake
-        # Use a bash shell so we can use the same syntax for environment variable
-        # access regardless of the host operating system
-        shell: bash
-        # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-  
-      - name: Build
-        shell: bash
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
-        run: |
-          cmake --build _build --config $BUILD_TYPE -j$(sysctl -n hw.logicalcpu)
-
-  macos14-arm-clang:
-    runs-on: macos-14
-
-    steps:
-
-      - name: Checkout source
-        uses: actions/checkout@v4
-  
-      - name: Install dependencies
-        run: >
-          brew install xerces-c
-          uchardet xerces-c wxwidgets
-          libx11 libxi
-          openssl samba libnfs neon libssh
-          libarchive pcre
-
-      - name: Relink 'keg-only' packages
-        run: brew link libarchive --force
+          sudo apt-get update;
+          sudo apt-get -y install
+          libuchardet-dev libxerces-c-dev libwxgtk3.0-gtk3-dev
+          libx11-dev libxi-dev
+          libssl-dev libsmbclient-dev libnfs-dev libneon27-dev libssh-dev
+          libarchive-dev libpcre3-dev
   
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
@@ -114,46 +75,12 @@ jobs:
         # access regardless of the host operating system
         shell: bash
         # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DPYTHON=yes
   
       - name: Build
         shell: bash
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
-          cmake --build _build --config $BUILD_TYPE -j$(sysctl -n hw.logicalcpu)
-
-  macos12-x64-clang:
-    runs-on: macos-12
-
-    steps:
-
-      - name: Checkout source
-        uses: actions/checkout@v4
-  
-      - name: Install dependencies
-        run: >
-          brew install xerces-c
-          uchardet xerces-c wxwidgets
-          libx11 libxi
-          openssl samba libnfs neon libssh
-          libarchive pcre
-
-      - name: Relink 'keg-only' packages
-        run: brew link libarchive --force
-
-      - name: Create Build Environment
-        # Create a separate build directory as working directory for all subsequent commands
-        run: mkdir -p _build
-  
-      - name: Configure CMake
-        # Use a bash shell so we can use the same syntax for environment variable
-        # access regardless of the host operating system
-        shell: bash
-        # -S and -B options specify source and build directories
-        run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-  
-      - name: Build
-        shell: bash
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
-        run: |
-          cmake --build _build --config $BUILD_TYPE -j$(sysctl -n hw.logicalcpu)
+          cmake --build _build --config $BUILD_TYPE -j$(nproc --all)
+          
+        
