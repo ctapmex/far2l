@@ -85,9 +85,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
 
 target_link_libraries(NetRocks-FILE utils)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_link_libraries(NetRocks-FILE
-        PRIVATE stdc++
-        PRIVATE m)
+    target_link_libraries(NetRocks-FILE stdc++ m)
 endif()
 target_include_directories(NetRocks-FILE PRIVATE src)
 set_target_properties(NetRocks-FILE
@@ -99,9 +97,7 @@ target_compile_options(NetRocks-FILE PUBLIC -DNETROCKS_PROTOCOL)
 
 target_link_libraries(NetRocks-SHELL utils)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_link_libraries(NetRocks-SHELL
-        PRIVATE stdc++
-        PRIVATE m)
+    target_link_libraries(NetRocks-SHELL stdc++ m)
 endif()
 target_include_directories(NetRocks-SHELL PRIVATE src)
 set_target_properties(NetRocks-SHELL
@@ -129,9 +125,7 @@ if (LIBSSH_FOUND AND ((NOT DEFINED NR_SFTP) OR NR_SFTP))
     )
     target_link_libraries(NetRocks-SFTP utils ${LIBSSH_LIBRARIES})
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_link_libraries(NetRocks-SFTP
-            PRIVATE stdc++
-            PRIVATE m)
+        target_link_libraries(NetRocks-SFTP stdc++ m)
     endif()
     target_include_directories(NetRocks-SFTP PRIVATE src ${LIBSSH_INCLUDE_DIRS})
     set_target_properties(NetRocks-SFTP
@@ -150,9 +144,7 @@ if (LIBSMBCLIENT_FOUND AND ((NOT DEFINED NR_SMB) OR NR_SMB))
     )
     target_link_libraries(NetRocks-SMB utils ${LIBSMBCLIENT_LIBRARIES})
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_link_libraries(NetRocks-SMB
-            PRIVATE stdc++
-            PRIVATE m)
+        target_link_libraries(NetRocks-SMB stdc++ m)
     endif()
     target_include_directories(NetRocks-SMB PRIVATE src ${LIBSMBCLIENT_INCLUDE_DIRS})
     set_target_properties(NetRocks-SMB
@@ -170,9 +162,7 @@ if (LIBNFS_FOUND AND ((NOT DEFINED NR_NFS) OR NR_NFS))
     )
     target_link_libraries(NetRocks-NFS utils ${LIBNFS_LIBRARIES})
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_link_libraries(NetRocks-NFS
-            PRIVATE stdc++
-            PRIVATE m)
+        target_link_libraries(NetRocks-NFS stdc++ m)
     endif()
     target_include_directories(NetRocks-NFS PRIVATE src ${LIBNFS_INCLUDE_DIRS})
     set_target_properties(NetRocks-NFS
@@ -191,9 +181,7 @@ if (LIBNEON_FOUND AND ((NOT DEFINED NR_WEBDAV) OR NR_WEBDAV))
     )
     target_link_libraries(NetRocks-WebDAV utils ${LIBNEON_LIBRARIES})
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_link_libraries(NetRocks-WebDAV
-            PRIVATE stdc++
-            PRIVATE m)
+        target_link_libraries(NetRocks-WebDAV stdc++ m)
     endif()
     target_include_directories(NetRocks-WebDAV PRIVATE src ${LIBNEON_INCLUDE_DIRS})
     set_target_properties(NetRocks-WebDAV
@@ -219,9 +207,7 @@ if (OPENSSL_FOUND AND ((NOT DEFINED NR_OPENSSL) OR NR_OPENSSL))
     target_include_directories(NetRocks-FTP PRIVATE ${OPENSSL_INCLUDE_DIR})
 endif ()
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_link_libraries(NetRocks-FTP
-        PRIVATE stdc++
-        PRIVATE m)
+    target_link_libraries(NetRocks-FTP stdc++ m)
 endif()
 set_target_properties(NetRocks-FTP
     PROPERTIES

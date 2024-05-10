@@ -77,7 +77,5 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Haiku")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_link_libraries(WinPort
-        PRIVATE stdc++
-        PRIVATE m)
+    target_link_libraries(WinPort stdc++ m)
 endif()
