@@ -40,6 +40,12 @@ else()
     target_link_libraries(far2l_ttyx utils ${X11_LIBRARIES})
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_link_libraries(far2l_ttyx
+        PRIVATE stdc++
+        PRIVATE m)
+endif()
+
 set_target_properties(far2l_ttyx PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${INSTALL_DIR}"
     PREFIX ""
