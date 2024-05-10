@@ -7,6 +7,22 @@ on:
   push:
     branches:
         - master
+    paths-ignore:
+      - '.vscode/**'
+      - '.cirrus.yml'
+      - '.clang-format'
+      - '.clang-format.json'
+      - '.editorconfig'
+      - '.gitignore'
+      - '.travis.yml'
+      - 'Brewfile'
+      - 'CODESTYLE.md'
+      - 'dependencies-minimal.txt'
+      - 'dependencies.txt'
+      - 'Dockerfile'
+      - 'HACKING.md'
+      - 'LICENSE.txt'
+      - 'README.md'
   # run on pull request to master
   pull_request:
     branches:
@@ -129,7 +145,7 @@ jobs:
   
       - name: Install dependencies
         run: >
-          brew install xerces-c
+          brew install
           uchardet xerces-c wxwidgets
           libx11 libxi
           openssl samba libnfs neon libssh
