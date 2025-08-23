@@ -5,6 +5,7 @@
 #include <colorer/editor/Outliner.h>
 #include <colorer/handlers/StyledRegion.h>
 #include "pcolorer.h"
+#include "ColorerWorker.h"
 
 struct color
 {
@@ -66,7 +67,7 @@ class FarEditor : public LineSource
    */
   FarEditor(PluginStartupInfo* inf, ParserFactory* pf);
   /** Drops this editor */
-  ~FarEditor() override = default;
+  ~FarEditor() override;
 
   void endJob(size_t lno) override;
   /**
@@ -132,6 +133,7 @@ class FarEditor : public LineSource
   int editorEvent(int event, void* param);
   /** Dispatch editor input event */
   int editorInput(const INPUT_RECORD* ir);
+  int editorSynchro(void *Param);
 
   void cleanEditor();
 
@@ -184,6 +186,9 @@ class FarEditor : public LineSource
   void showOutliner(Outliner* outliner);
   void addFARColor(int lno, int s, int e, const color& col, bool add_style = true) const;
   const wchar_t* GetMsg(int msg) const;
+
+
+  std::unique_ptr<ColorerWorker> worker;
 };
 #endif
 

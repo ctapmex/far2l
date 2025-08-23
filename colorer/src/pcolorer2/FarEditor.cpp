@@ -32,6 +32,13 @@ FarEditor::FarEditor(PluginStartupInfo* inf, ParserFactory* pf) : info(inf), par
   const Region* def_Error = parserFactory->getHrcLibrary().getRegion(&dse);
   structOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Outlined);
   errorOutliner = std::make_unique<Outliner>(baseEditor.get(), def_Error);
+
+  worker = std::make_unique<ColorerWorker>();
+}
+
+FarEditor::~FarEditor()
+{
+  worker->get_data_cv().notify_one();
 }
 
 void FarEditor::endJob(size_t lno)
@@ -437,7 +444,7 @@ void FarEditor::updateHighlighting()
 
 int FarEditor::editorInput(const INPUT_RECORD* ir)
 {
-  if (ir->EventType == KEY_EVENT && ir->Event.KeyEvent.wVirtualKeyCode == 0) {
+ /* if (ir->EventType == KEY_EVENT && ir->Event.KeyEvent.wVirtualKeyCode == 0) {
     if (baseEditor->haveInvalidLine()) {
       auto invalid_line1 = baseEditor->getInvalidLine();
       idleCount++;
@@ -458,7 +465,29 @@ int FarEditor::editorInput(const INPUT_RECORD* ir)
   }
   else if (ir->EventType == KEY_EVENT) {
     idleCount = 0;
+  }*/
+
+  return 0;
+}
+
+int FarEditor::editorSynchro(void *Param)
+{
+  auto start_pos = (int*) Param;
+  COLORER_LOG_WARN("[main] Пришел запрос на данные с строки %", *start_pos);
+
+  std::vector<uUnicodeString> lines;
+  for (auto i = *start_pos; i < *start_pos + 20; i++) {
+    EditorGetString es {i};
+
+    info->EditorControl(ECTL_GETSTRING, &es);
+    auto len = es.StringLength;
+    auto str = std::make_unique<UnicodeString>((char*) es.StringText, len * sizeof(wchar_t),
+                                               Encodings::ENC_UTF32);
+
+    lines.push_back(std::move(str));
   }
+  worker->push_data(lines, *start_pos);
+  COLORER_LOG_WARN("[main] данные отправлены");
 
   return 0;
 }
@@ -470,14 +499,18 @@ int FarEditor::editorEvent(int event, void* param)
     return 0;
   }
 
+
+
   const auto ei = getEditorInfo();
   WindowSizeX = ei.WindowSizeX;
   WindowSizeY = ei.WindowSizeY;
 
-  baseEditor->visibleTextEvent(ei.TopScreenLine, WindowSizeY);
+  //baseEditor->visibleTextEvent(ei.TopScreenLine, WindowSizeY);
 
-  baseEditor->lineCountEvent(ei.TotalLines);
+  //baseEditor->lineCountEvent(ei.TotalLines);
 
+  //worker->start_validation(ei.CurLine, WindowSizeY, ei.TotalLines);
+  worker->set_file_options(ei.CurLine, WindowSizeY, ei.TotalLines);
   if (param == EEREDRAW_CHANGE) {
     int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
 
@@ -489,17 +522,18 @@ int FarEditor::editorEvent(int event, void* param)
       ml = blockTopPosition;
     }
 
-    baseEditor->modifyEvent(ml);
+    //baseEditor->modifyEvent(ml);
+    worker->start_validation(ml);
   }
 
   prevLinePosition = ei.CurLine;
-  blockTopPosition = -1;
+ blockTopPosition = -1;
 
   if (ei.BlockType != BTYPE_NONE) {
     blockTopPosition = ei.BlockStartLine;
   }
 
-  // hack against tabs in FAR's editor
+ /* // hack against tabs in FAR's editor
   EditorConvertPos ecp {-1, ei.CurPos};
   EditorConvertPos ecp_cl {};
   info->EditorControl(ECTL_REALTOTAB, &ecp);
@@ -774,7 +808,7 @@ int FarEditor::editorEvent(int event, void* param)
     info->EditorControl(ECTL_REDRAW, nullptr);
     inRedraw = false;
   }
-
+*/
   return true;
 }
 

@@ -23,6 +23,8 @@ set(SOURCES
     src/pcolorer2/tools.cpp
     src/pcolorer2/CerrLogger.cpp
     src/pcolorer2/CerrLogger.h
+        src/pcolorer2/ColorerWorker.cpp
+        src/pcolorer2/ColorerWorker.h
 )
 
 # set options for colorer-library

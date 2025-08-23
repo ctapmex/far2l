@@ -703,6 +703,18 @@ int FarEditorSet::editorInput(const INPUT_RECORD* ir)
   return 0;
 }
 
+int FarEditorSet::editorSynchro(void *Param)
+{
+  if (Opt.rEnabled) {
+    FarEditor* editor = getCurrentEditor();
+    if (editor) {
+      return editor->editorSynchro(Param);
+    }
+  }
+  return 0;
+
+}
+
 int FarEditorSet::editorEvent(int Event, void* Param)
 {
   // check whether all the editors cleaned

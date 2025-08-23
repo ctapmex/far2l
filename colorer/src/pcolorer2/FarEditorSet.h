@@ -125,6 +125,7 @@ class FarEditorSet
   int editorEvent(int Event, void* Param);
   /** Dispatch editor input event in the opened editor */
   int editorInput(const INPUT_RECORD* ir);
+  int editorSynchro(void *Param);
 
   /** Get the description of HRD, or parameter name if description=null */
   const UnicodeString* getHRDescription(const UnicodeString& name, const UnicodeString& _hrdClass) const;

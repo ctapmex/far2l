@@ -149,6 +149,19 @@ SHAREDSYMBOL int WINAPI ProcessEditorInputW(const INPUT_RECORD* ir)
   return result;
 }
 
+SHAREDSYMBOL int WINAPI ProcessSynchroEventW(int Event, void *Param)
+{
+  if (Event != SE_COMMONSYNCHRO) {
+    return 0;
+  }
+
+  if (editorSet) {
+    int result = editorSet->editorSynchro(Param);
+    return result;
+  }
+  return 0;
+}
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Copyright (C) 1999-2009 Cail Lomecb <irusskih at gmail dot com>.
  * This program is free software; you can redistribute it and/or
