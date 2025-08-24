@@ -39,6 +39,7 @@ void ColorerWorker::pause(bool pause)
   std::lock_guard lock(mtx);
   pause_flag = pause;
   task_cv.notify_one();
+  data_cv.notify_all();
 }
 
 void ColorerWorker::set_file_options(int screen_start, int screen_size, int line_counts)
@@ -74,6 +75,7 @@ void ColorerWorker::start_validation(int invalid_line)
   internal_buffer.clear();
   buffer_start_line = -1;
   task_cv.notify_one();
+  data_cv.notify_one();
 }
 
 void ColorerWorker::push_data(std::vector<uUnicodeString>& data, int start_position)
@@ -134,11 +136,11 @@ void ColorerWorker::validate()
       }
       if (notify_redraw && i > line_notify) {
         notify_redraw = false;
-        lock.unlock();
+        //  lock.unlock();
         Command cmd {2, line_notify};
-        Info.AdvControl(Info.ModuleNumber, ACTL_SYNCHRO, &cmd, nullptr);
+        Info.AdvControlAsync(Info.ModuleNumber, ACTL_SYNCHRO, &cmd, nullptr);
 
-        lock.lock();
+        //  lock.lock();
       }
     }
 
@@ -158,16 +160,20 @@ void ColorerWorker::validate()
 UnicodeString* ColorerWorker::getLine(size_t lno)
 {
   std::unique_lock lock(mtx);
-  while ((internal_buffer.empty()) || !((lno < buffer_start_line + internal_buffer.size()  ) && (lno >= buffer_start_line))) {
+  while ((internal_buffer.empty()) ||
+         !((lno < buffer_start_line + internal_buffer.size()) && (lno >= buffer_start_line)))
+  {
     COLORER_LOG_WARN("[Thread] в буфере нет строки %. Запрашиваю данные...", lno);
 
-    if (stop_flag || has_new_task|| pause_flag) return nullptr;
+    if (stop_flag || has_new_task || pause_flag)
+      return nullptr;
     if (!data_needed) {
-      lock.unlock();
+      //  lock.unlock();
       Command cmd {1, lno};
-      Info.AdvControl(Info.ModuleNumber, ACTL_SYNCHRO, &cmd, nullptr);
-      lock.lock();
-      if (stop_flag || has_new_task) continue;
+      Info.AdvControlAsync(Info.ModuleNumber, ACTL_SYNCHRO, &cmd, nullptr);
+      //  lock.lock();
+      if (stop_flag || has_new_task)
+        continue;
       data_needed = true;
     }
 

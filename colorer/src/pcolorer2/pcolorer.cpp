@@ -156,8 +156,7 @@ SHAREDSYMBOL int WINAPI ProcessSynchroEventW(int Event, void *Param)
   }
 
   if (editorSet) {
-    int result = editorSet->editorSynchro(Param);
-    return result;
+    editorSet->editorSynchro(Param);
   }
   return 0;
 }

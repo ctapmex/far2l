@@ -507,20 +507,22 @@ int FarEditor::editorEvent(int event, void* param)
     return 0;
   }
 
-
-
   const auto ei = getEditorInfo();
-  WindowSizeX = ei.WindowSizeX;
-  WindowSizeY = ei.WindowSizeY;
+  worker->set_file_options(ei.TopScreenLine, ei.WindowSizeY, ei.TotalLines);
+  if (param == EEREDRAW_CHANGE) {
+    worker->start_validation(ei.CurLine);
+  }
+  auto results = worker->get_processed_data(ei.TopScreenLine, WindowSizeY);
+  COLORER_LOG_WARN("[main] Из потока получено обработанных строк:  %", results.size());
+
+ /* WindowSizeX = ei.WindowSizeX;
+  WindowSizeY = ei.WindowSizeY;*/
 
   //baseEditor->visibleTextEvent(ei.TopScreenLine, WindowSizeY);
 
   //baseEditor->lineCountEvent(ei.TotalLines);
-
-  //worker->start_validation(ei.CurLine, WindowSizeY, ei.TotalLines);
-  worker->set_file_options(ei.TopScreenLine, ei.WindowSizeY, ei.TotalLines);
-  if (param == EEREDRAW_CHANGE) {
-  /*  int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
+  /* if (param == EEREDRAW_CHANGE) {
+   int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
 
     if (ml < 0) {
       ml = 0;
@@ -529,9 +531,9 @@ int FarEditor::editorEvent(int event, void* param)
     if (blockTopPosition != -1 && ml > blockTopPosition) {
       ml = blockTopPosition;
     }
-*/
+
     //baseEditor->modifyEvent(ml);
-    worker->start_validation(ei.CurLine);
+
   }
 
   /*prevLinePosition = ei.CurLine;
@@ -541,8 +543,6 @@ int FarEditor::editorEvent(int event, void* param)
     blockTopPosition = ei.BlockStartLine;
   }
 */
-  auto results = worker->get_processed_data(ei.TopScreenLine, WindowSizeY);
-  COLORER_LOG_WARN("[main] Из потока получено обработанных строк:  %", results.size());
 
  /* // hack against tabs in FAR's editor
   EditorConvertPos ecp {-1, ei.CurPos};
