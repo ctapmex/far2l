@@ -475,8 +475,9 @@ int FarEditor::editorSynchro(void *Param)
   auto start_pos = (int*) Param;
   COLORER_LOG_WARN("[main] Пришел запрос на данные с строки %", *start_pos);
 
+  const auto ei = getEditorInfo();
   std::vector<uUnicodeString> lines;
-  for (auto i = *start_pos; i < *start_pos + 20; i++) {
+  for (auto i = *start_pos; i < *start_pos + 20  && i< ei.TotalLines; i++) {
     EditorGetString es {i};
 
     info->EditorControl(ECTL_GETSTRING, &es);
@@ -512,7 +513,7 @@ int FarEditor::editorEvent(int event, void* param)
   //worker->start_validation(ei.CurLine, WindowSizeY, ei.TotalLines);
   worker->set_file_options(ei.CurLine, WindowSizeY, ei.TotalLines);
   if (param == EEREDRAW_CHANGE) {
-    int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
+  /*  int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
 
     if (ml < 0) {
       ml = 0;
@@ -521,17 +522,20 @@ int FarEditor::editorEvent(int event, void* param)
     if (blockTopPosition != -1 && ml > blockTopPosition) {
       ml = blockTopPosition;
     }
-
+*/
     //baseEditor->modifyEvent(ml);
-    worker->start_validation(ml);
+    worker->start_validation(ei.CurLine);
   }
 
-  prevLinePosition = ei.CurLine;
+  /*prevLinePosition = ei.CurLine;
  blockTopPosition = -1;
 
   if (ei.BlockType != BTYPE_NONE) {
     blockTopPosition = ei.BlockStartLine;
   }
+*/
+  auto results = worker->get_processed_data();
+  COLORER_LOG_WARN("[main] Из потока получено обработанных строк:  %", results.size());
 
  /* // hack against tabs in FAR's editor
   EditorConvertPos ecp {-1, ei.CurPos};

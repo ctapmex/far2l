@@ -14,6 +14,7 @@ public:
   ~ColorerWorker() override;
   void start_validation(int invalid_line);
   void push_data(std::vector<uUnicodeString>& data, int start_position);
+  std::vector<int> get_processed_data();
   UnicodeString* getLine(size_t lno) override;
 
   void set_file_options(int screen_start, int screen_size, int line_counts);
@@ -42,6 +43,7 @@ private:
   int line_counts = 0;
 
   std::vector<uUnicodeString> internal_buffer;
+  std::vector<int> processed_data;
 };
 
 #endif  // FAR2L_COLORERWORKER_H
