@@ -740,9 +740,19 @@ int FarEditorSet::editorEvent(int Event, void* Param)
         }
       }
       case EE_GOTFOCUS: {
-        if (!getCurrentEditor()) {
+        editor = getCurrentEditor();
+        if (!editor) {
           editor = addCurrentEditor();
           return editor->editorEvent(EE_REDRAW, EEREDRAW_CHANGE);
+        }else {
+          editor->startWorker();
+        }
+        return 0;
+      }
+      case EE_KILLFOCUS: {
+        editor = getCurrentEditor();
+        if (editor) {
+          editor->pauseWorker();
         }
         return 0;
       }
@@ -923,6 +933,7 @@ FarEditor* FarEditorSet::addCurrentEditor()
   editor->setDrawPairs(Opt.drawPairs);
   editor->setDrawSyntax(Opt.drawSyntax);
   editor->setOutlineStyle(Opt.oldOutline);
+  editor->startWorker();
 
   return editor;
 }

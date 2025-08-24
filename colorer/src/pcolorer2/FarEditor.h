@@ -137,6 +137,9 @@ class FarEditor : public LineSource
 
   void cleanEditor();
 
+  void startWorker();
+  void pauseWorker();
+
  private:
 
   PluginStartupInfo* info;

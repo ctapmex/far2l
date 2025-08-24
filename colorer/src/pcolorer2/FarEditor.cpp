@@ -38,7 +38,9 @@ FarEditor::FarEditor(PluginStartupInfo* inf, ParserFactory* pf) : info(inf), par
 
 FarEditor::~FarEditor()
 {
-  worker->get_data_cv().notify_one();
+  if (worker) {
+    worker->stop();
+  }
 }
 
 void FarEditor::endJob(size_t lno)
@@ -472,24 +474,29 @@ int FarEditor::editorInput(const INPUT_RECORD* ir)
 
 int FarEditor::editorSynchro(void *Param)
 {
-  auto start_pos = (int*) Param;
-  COLORER_LOG_WARN("[main] Пришел запрос на данные с строки %", *start_pos);
+  auto command = (Command*) Param;
+  if (command->command_id ==1) {
+    auto start_pos = command->lineno;
+    COLORER_LOG_WARN("[main] Пришел запрос на данные с строки %", start_pos);
 
-  const auto ei = getEditorInfo();
-  std::vector<uUnicodeString> lines;
-  for (auto i = *start_pos; i < *start_pos + 20  && i< ei.TotalLines; i++) {
-    EditorGetString es {i};
+    const auto ei = getEditorInfo();
+    std::vector<uUnicodeString> lines;
+    for (auto i = start_pos; i < start_pos + 20  && i< ei.TotalLines; i++) {
+      EditorGetString es {(int)i};
 
-    info->EditorControl(ECTL_GETSTRING, &es);
-    auto len = es.StringLength;
-    auto str = std::make_unique<UnicodeString>((char*) es.StringText, len * sizeof(wchar_t),
-                                               Encodings::ENC_UTF32);
+      info->EditorControl(ECTL_GETSTRING, &es);
+      auto len = es.StringLength;
+      auto str = std::make_unique<UnicodeString>((char*) es.StringText, len * sizeof(wchar_t),
+                                                 Encodings::ENC_UTF32);
 
-    lines.push_back(std::move(str));
+      lines.push_back(std::move(str));
+    }
+    worker->push_data(lines, start_pos);
+    COLORER_LOG_WARN("[main] данные отправлены");
+  }else if (command->command_id ==2){
+    COLORER_LOG_WARN("[main] Пришла команда готовности данных");
+    Info.EditorControl(ECTL_REDRAW, nullptr);
   }
-  worker->push_data(lines, *start_pos);
-  COLORER_LOG_WARN("[main] данные отправлены");
-
   return 0;
 }
 
@@ -511,7 +518,7 @@ int FarEditor::editorEvent(int event, void* param)
   //baseEditor->lineCountEvent(ei.TotalLines);
 
   //worker->start_validation(ei.CurLine, WindowSizeY, ei.TotalLines);
-  worker->set_file_options(ei.CurLine, WindowSizeY, ei.TotalLines);
+  worker->set_file_options(ei.TopScreenLine, ei.WindowSizeY, ei.TotalLines);
   if (param == EEREDRAW_CHANGE) {
   /*  int ml = (prevLinePosition < ei.CurLine ? prevLinePosition : ei.CurLine) - 1;
 
@@ -534,7 +541,7 @@ int FarEditor::editorEvent(int event, void* param)
     blockTopPosition = ei.BlockStartLine;
   }
 */
-  auto results = worker->get_processed_data();
+  auto results = worker->get_processed_data(ei.TopScreenLine, WindowSizeY);
   COLORER_LOG_WARN("[main] Из потока получено обработанных строк:  %", results.size());
 
  /* // hack against tabs in FAR's editor
@@ -1392,6 +1399,18 @@ void FarEditor::cleanEditor()
   for (int i = 0; i < ei.TotalLines; i++) {
     addFARColor(i, -1, 0, col);
   }
+}
+
+void FarEditor::startWorker()
+{
+  const auto ei = getEditorInfo();
+  worker->set_file_options(ei.TopScreenLine, ei.WindowSizeY, ei.TotalLines);
+  worker->start_validation(ei.CurLine);
+}
+
+void FarEditor::pauseWorker()
+{
+  worker->pause(true);
 }
 
 /* ***** BEGIN LICENSE BLOCK *****

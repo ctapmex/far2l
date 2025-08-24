@@ -1,5 +1,6 @@
 #ifndef FAR2L_COLORERWORKER_H
 #define FAR2L_COLORERWORKER_H
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -7,14 +8,22 @@
 #include "colorer/Common.h"
 #include "colorer/LineSource.h"
 
+struct Command
+{
+  int command_id;
+  size_t lineno;
+};
+
 class ColorerWorker: public LineSource
 {
 public:
   ColorerWorker();
   ~ColorerWorker() override;
+  void stop();
+  void pause(bool pause);
   void start_validation(int invalid_line);
   void push_data(std::vector<uUnicodeString>& data, int start_position);
-  std::vector<int> get_processed_data();
+  std::vector<int> get_processed_data(int start_line, int count);
   UnicodeString* getLine(size_t lno) override;
 
   void set_file_options(int screen_start, int screen_size, int line_counts);
@@ -32,9 +41,13 @@ private:
   std::condition_variable data_cv; // для запроса/поставки данных
 
   // Состояние
-  bool stop_flag = false;
+  bool is_stopped = false;
+  std::atomic<bool>  stop_flag = false;
+  bool pause_flag = false;
   bool has_new_task = false;
   bool data_needed = false;
+  bool notify_redraw = false;
+  size_t line_notify = 0;
 
   int buffer_start_line = 0;
   int valid_line = -1;
