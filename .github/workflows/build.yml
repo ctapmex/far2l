@@ -233,6 +233,9 @@ jobs:
 
       - name: Relink 'keg-only' packages
         run: brew link libarchive --force
+
+      - name: Relink 'keg-only' packages
+        run: ls -R /opt/homebrew/include/aws/
   
       - name: Create Build Environment
         # Create a separate build directory as working directory for all subsequent commands
